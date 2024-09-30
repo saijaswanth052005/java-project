@@ -1,0 +1,129 @@
+import java.util.ArrayList;
+import java.util.Comparator;
+
+// Generic Priority Queue Class
+class GenericPriorityQueue<T> {
+    private final ArrayList<T> elements;
+    private final Comparator<? super T> comparator;
+
+    // Constructor
+    public GenericPriorityQueue(Comparator<? super T> comparator) {
+        this.elements = new ArrayList<>();
+        this.comparator = comparator;
+    }
+
+    // Method to add an element to the queue
+    public void add(T element) {
+        elements.add(element);
+        siftUp(elements.size() - 1);
+    }
+
+    // Method to remove and return the highest priority element
+    public T remove() {
+        if (isEmpty()) {
+            throw new IllegalStateException("Priority Queue is empty");
+        }
+        T result = elements.get(0);
+        T lastElement = elements.remove(elements.size() - 1);
+        if (!isEmpty()) {
+            elements.set(0, lastElement);
+            siftDown(0);
+        }
+        return result;
+    }
+
+    // Method to get the highest priority element without removing it
+    public T peek() {
+        if (isEmpty()) {
+            throw new IllegalStateException("Priority Queue is empty");
+        }
+        return elements.get(0);
+    }
+
+    // Method to check if the priority queue is empty
+    public boolean isEmpty() {
+        return elements.isEmpty();
+    }
+
+    // Method to get the size of the priority queue
+    public int size() {
+        return elements.size();
+    }
+
+    // Helper method to maintain the heap property when adding an element
+    private void siftUp(int index) {
+        T element = elements.get(index);
+        while (index > 0) {
+            int parentIndex = (index - 1) / 2;
+            T parent = elements.get(parentIndex);
+            if (comparator.compare(element, parent) <= 0) {
+                break;
+            }
+            elements.set(index, parent);
+            index = parentIndex;
+        }
+        elements.set(index, element);
+    }
+
+    // Helper method to maintain the heap property when removing the top element
+    private void siftDown(int index) {
+        int half = elements.size() / 2;
+        T element = elements.get(index);
+        while (index < half) {
+            int childIndex = 2 * index + 1;
+            T child = elements.get(childIndex);
+            int rightIndex = childIndex + 1;
+            if (rightIndex < elements.size() && comparator.compare(child, elements.get(rightIndex)) < 0) {
+                childIndex = rightIndex;
+                child = elements.get(childIndex);
+            }
+            if (comparator.compare(element, child) >= 0) {
+                break;
+            }
+            elements.set(index, child);
+            index = childIndex;
+        }
+        elements.set(index, element);
+    }
+}
+
+// Test Class for the Priority Queue
+public class PriorityQueueTest {
+    public static void main(String[] args) {
+        // Test with Integers
+        System.out.println("Testing Integer Priority Queue:");
+        GenericPriorityQueue<Integer> intQueue = new GenericPriorityQueue<>(Comparator.reverseOrder());
+        intQueue.add(5);
+        intQueue.add(2);
+        intQueue.add(8);
+        intQueue.add(3);
+
+        while (!intQueue.isEmpty()) {
+            System.out.println(intQueue.remove()); // Output should be in descending order
+        }
+
+        // Test with Doubles
+        System.out.println("\nTesting Double Priority Queue:");
+        GenericPriorityQueue<Double> doubleQueue = new GenericPriorityQueue<>(Comparator.naturalOrder());
+        doubleQueue.add(3.14);
+        doubleQueue.add(1.59);
+        doubleQueue.add(2.65);
+        doubleQueue.add(4.71);
+
+        while (!doubleQueue.isEmpty()) {
+            System.out.println(doubleQueue.remove()); // Output should be in ascending order
+        }
+
+        // Test with Strings
+        System.out.println("\nTesting String Priority Queue:");
+        GenericPriorityQueue<String> stringQueue = new GenericPriorityQueue<>(Comparator.naturalOrder());
+        stringQueue.add("banana");
+        stringQueue.add("apple");
+        stringQueue.add("cherry");
+        stringQueue.add("date");
+
+        while (!stringQueue.isEmpty()) {
+            System.out.println(stringQueue.remove()); // Output should be in alphabetical order
+        }
+    }
+}
