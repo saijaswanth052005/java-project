@@ -1,0 +1,102 @@
+import java.sql.*;
+
+public class StudentDetailsServlet {
+
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/";
+    private static final String DB_NAME = "Student";
+    private static final String DB_USER = "root";
+    private static final String DB_PASSWORD = "password";
+
+    public static void main(String[] args) {
+        try {
+            createDatabase();
+            createRegistrationTable();
+            insertRecords();
+            displayRecords();
+            updateRecords();
+            deleteRecord();
+            displayRecords();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void createDatabase() throws SQLException {
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate("CREATE DATABASE IF NOT EXISTS " + DB_NAME);
+            System.out.println("Database created successfully...");
+        }
+    }
+
+    private static void createRegistrationTable() throws SQLException {
+        try (Connection conn = DriverManager.getConnection(DB_URL + DB_NAME, DB_USER, DB_PASSWORD);
+             Statement stmt = conn.createStatement()) {
+            String createTableSQL = "CREATE TABLE IF NOT EXISTS Registration (" +
+                                    "id INT PRIMARY KEY, " +
+                                    "name VARCHAR(50), " +
+                                    "address VARCHAR(100), " +
+                                    "program VARCHAR(50))";
+            stmt.executeUpdate(createTableSQL);
+            System.out.println("Table created successfully...");
+        }
+    }
+
+    private static void insertRecords() throws SQLException {
+        String insertSQL = "INSERT INTO Registration (id, name, address, program) VALUES (?, ?, ?, ?)";
+        try (Connection conn = DriverManager.getConnection(DB_URL + DB_NAME, DB_USER, DB_PASSWORD);
+             PreparedStatement pstmt = conn.prepareStatement(insertSQL)) {
+            pstmt.setInt(1, 100);
+            pstmt.setString(2, "Alice");
+            pstmt.setString(3, "123 Main St");
+            pstmt.setString(4, "Computer Science");
+            pstmt.executeUpdate();
+
+            pstmt.setInt(1, 101);
+            pstmt.setString(2, "Bob");
+            pstmt.setString(3, "456 Oak St");
+            pstmt.setString(4, "Mathematics");
+            pstmt.executeUpdate();
+
+            pstmt.setInt(1, 102);
+            pstmt.setString(2, "Charlie");
+            pstmt.setString(3, "789 Maple St");
+            pstmt.setString(4, "Physics");
+            pstmt.executeUpdate();
+
+            pstmt.setInt(1, 103);
+            pstmt.setString(2, "David");
+            pstmt.setString(3, "101 Birch St");
+            pstmt.setString(4, "Engineering");
+            pstmt.executeUpdate();
+
+            System.out.println("Records inserted successfully...");
+        }
+    }
+
+    private static void displayRecords() throws SQLException {
+        String selectSQL = "SELECT * FROM Registration";
+        try (Connection conn = DriverManager.getConnection(DB_URL + DB_NAME, DB_USER, DB_PASSWORD);
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(selectSQL)) {
+            System.out.println("Displaying records:");
+            while (rs.next()) {
+                System.out.println("ID: " + rs.getInt("id") + 
+                                   ", Name: " + rs.getString("name") + 
+                                   ", Address: " + rs.getString("address") + 
+                                   ", Program: " + rs.getString("program"));
+            }
+        }
+    }
+
+    private static void updateRecords() throws SQLException {
+        String updateSQL = "UPDATE Registration SET program = ? WHERE id = ?";
+        try (Connection conn = DriverManager.getConnection(DB_URL + DB_NAME, DB_USER, DB_PASSWORD);
+             PreparedStatement pstmt = conn.prepareStatement(updateSQL)) {
+            pstmt.setString(1, "Data Science");
+            pstmt.setInt(2, 100);
+            pstmt.executeUpdate();
+
+            pstmt.setString(1, "Artificial Intelligence");
+            pstmt.setInt(2, 101);
+            pstmt.executeUpdate(
